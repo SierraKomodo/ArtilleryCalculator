@@ -7,3 +7,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `Coordinate` class for defining specific coordinate points on a 2D grid.
+- `Calculator` class for handling the main artillery calculations.
