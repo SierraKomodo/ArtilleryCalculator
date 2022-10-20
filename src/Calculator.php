@@ -122,6 +122,87 @@ class Calculator
     // LOGIC
     
     /**
+     * Calculates the angle from origin to target and returns the value in radians.
+     *
+     * @return float Angle in radians.
+     * @throws Exception if target is not defined.
+     * @uses \SierraKomodo\ArtilleryCalculator\Calculator::calculateHypotenuse()
+     */
+    protected function calculateAngle(): float
+    {
+        if (!$this->getTarget()) {
+            throw new Exception("Attempted to calculate angle without a target.");
+        }
+        $differenceX = $this->differenceX();
+        $differenceY = $this->differenceY();
+        
+        // Some quick checks for straight north, south, east, and west targets due to division by zero errors
+        if ($differenceX == 0 and $differenceY == 0) {
+            return 0; // Target is identical to origin, angle is irrelevant
+        } elseif ($differenceX == 0) {
+            if ($differenceY > 0) {
+                return 0; // Target is north
+            } elseif ($differenceY < 0) {
+                return pi(); // Target is south
+            }
+        } elseif ($differenceY == 0) {
+            if ($differenceX > 0) {
+                return pi() / 2; // Target is east
+            } elseif ($differenceX < 0) {
+                return pi() * 1.5; // Target is west
+            }
+        }
+        
+        // Angle calculation using the Law of Cosines with the X difference serving as the opposing face. This ensures
+        // that north equates to 0.
+        $hypotenuse           = $this->calculateHypotenuse();
+        $xSquared             = $differenceX ** 2;
+        $hSquared             = $hypotenuse ** 2;
+        $ySquared             = $differenceY ** 2;
+        $negative2HY          = -2 * $hypotenuse * $differenceY;
+        $addHYSquared         = $hSquared + $ySquared;
+        $subtractFromXSquared = $xSquared - $addHYSquared;
+        $divideBy2HY          = $subtractFromXSquared / $negative2HY;
+        $inverseCosine        = acos($divideBy2HY);
+        
+        // If the X value is negative, subtract the result from the maximum to accomodate the above calculations only
+        // working for 180 degrees instead of the full circle.
+        $result = $inverseCosine;
+        if ($differenceX < 0) {
+            $result = pi() * 2 - $inverseCosine;
+        }
+        
+        return $result;
+    }
+    
+    
+    /**
+     * Calculates the angle from origin to target and returns the value in degrees.
+     *
+     * @return int Angle in degrees.
+     * @throws Exception if target is not defined.
+     * @uses \SierraKomodo\ArtilleryCalculator\Calculator::calculateAngle()
+     */
+    public function calculateAngleDegrees(): int
+    {
+        return round($this->calculateAngle() * 180 / pi());
+    }
+    
+    
+    /**
+     * Calculates the angle from origin to target and returns the value in milliradians.
+     *
+     * @return int Angle in milliradians.
+     * @throws Exception if target is not defined.
+     * @uses \SierraKomodo\ArtilleryCalculator\Calculator::calculateAngle()
+     */
+    public function calculateAngleMilliradians(): int
+    {
+        return round($this->calculateAngle() * 1000);
+    }
+    
+    
+    /**
      * Calculates and returns the hypotenuse of a right triangle using the origin and target coordinates, where side `a`
      * is the difference between the X coordinates, and side `b` is the difference between the Y coordinates.
      *
@@ -133,8 +214,8 @@ class Calculator
         if (empty($this->getTarget())) {
             throw new Exception("Attempted to calculate hypotenuse without a target.");
         }
-        $differenceX = $this->getOrigin()->getX() - $this->getTarget()->getX();
-        $differenceY = $this->getOrigin()->getY() - $this->getTarget()->getY();
+        $differenceX = $this->differenceX();
+        $differenceY = $this->differenceY();
         return sqrt($differenceX ** 2 + $differenceY ** 2);
     }
     
@@ -154,5 +235,17 @@ class Calculator
         $hypotenuse         = $this->calculateHypotenuse();
         $gridSizeMultiplied = $hypotenuse * $this->getGridSize(); // Multiply the result by the grid size to account for the distance between grid lines.
         return round($gridSizeMultiplied);
+    }
+    
+    
+    protected function differenceX(): int
+    {
+        return $this->getTarget()->getX() - $this->getOrigin()->getX();
+    }
+    
+    
+    protected function differenceY(): int
+    {
+        return $this->getTarget()->getY() - $this->getOrigin()->getY();
     }
 }

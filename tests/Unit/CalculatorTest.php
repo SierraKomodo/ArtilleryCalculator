@@ -52,6 +52,62 @@ final class CalculatorTest extends TestCase
     }
     
     
+    public function calculateAngleMilliradianProvider(): array
+    {
+        return [
+            'equal to origin' => [1, 1, 0],
+            'north'           => [1, 2, 0],
+            'south'           => [1, 0, 3142],
+            'east'            => [2, 1, 1571],
+            'west'            => [0, 1, 4712],
+            'northeast'       => [2, 2, 785],
+            'northwest'       => [0, 2, 5498],
+            'southeast'       => [2, 0, 2356],
+            'southwest'       => [0, 0, 3927],
+        ];
+    }
+    
+    
+    /**
+     * @covers ::calculateAngle ::calculateAngleMilliradians
+     * @dataProvider calculateAngleMilliradianProvider
+     */
+    public function testCalculateAngleMilliradian(int $targetX, int $targetY, int $expectedMilliradians): void
+    {
+        $target = new Coordinate($targetX, $targetY);
+        $this->calculator->setTarget($target);
+        $this->assertSame($expectedMilliradians, $this->calculator->calculateAngleMilliradians());
+    }
+    
+    
+    public function calculateAngleDegreesProvider(): array
+    {
+        return [
+            'equal to origin' => [1, 1, 0],
+            'north'           => [1, 2, 0],
+            'south'           => [1, 0, 180],
+            'east'            => [2, 1, 90],
+            'west'            => [0, 1, 270],
+            'northeast'       => [2, 2, 45],
+            'northwest'       => [0, 2, 315],
+            'southeast'       => [2, 0, 135],
+            'southwest'       => [0, 0, 225],
+        ];
+    }
+    
+    
+    /**
+     * @covers ::calculateAngle ::calculateAngleDegrees
+     * @dataProvider calculateAngleDegreesProvider
+     */
+    public function testCalculateAngleDegrees(int $targetX, int $targetY, int $expectedDegrees): void
+    {
+        $target = new Coordinate($targetX, $targetY);
+        $this->calculator->setTarget($target);
+        $this->assertSame($expectedDegrees, $this->calculator->calculateAngleDegrees());
+    }
+    
+    
     /**
      * @covers ::setGridSize
      */
