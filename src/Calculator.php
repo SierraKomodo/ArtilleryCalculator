@@ -122,24 +122,36 @@ class Calculator
     // LOGIC
     
     /**
+     * Calculates and returns the hypotenuse of a right triangle using the origin and target coordinates, where side `a`
+     * is the difference between the X coordinates, and side `b` is the difference between the Y coordinates.
+     *
+     * @return float
+     * @throws Exception if target is not defined.
+     */
+    protected function calculateHypotenuse(): float
+    {
+        if (empty($this->getTarget())) {
+            throw new Exception("Attempted to calculate hypotenuse without a target.");
+        }
+        $differenceX = $this->getOrigin()->getX() - $this->getTarget()->getX();
+        $differenceY = $this->getOrigin()->getY() - $this->getTarget()->getY();
+        return sqrt($differenceX ** 2 + $differenceY ** 2);
+    }
+    
+    
+    /**
      * Calculates and returns the range between origin and target.
      *
      * @return int Non-negative integer.
-     * @throws Exception if target is not defined.
-     *
+     * @throws Exception
      * @todo Add support for elevation differences.
+     * @uses \SierraKomodo\ArtilleryCalculator\Calculator::calculateHypotenuse()
      */
     public function calculateRange(): int
     {
-        if (empty($this->target)) {
-            throw new Exception("Attempted to calculate range without a target.");
-        }
         // Determine the distance between origin and target using pythagorean's theorem, where `a` is the difference in
         // X coordinates, and `b` is the difference in Y coordinates.
-        // Both differences are the absolute value as distance will always be a positive integer.
-        $differenceX        = $this->getOrigin()->getX() - $this->getTarget()->getX();
-        $differenceY        = $this->getOrigin()->getY() - $this->getTarget()->getY();
-        $hypotenuse         = sqrt($differenceX ** 2 + $differenceY ** 2);
+        $hypotenuse         = $this->calculateHypotenuse();
         $gridSizeMultiplied = $hypotenuse * $this->getGridSize(); // Multiply the result by the grid size to account for the distance between grid lines.
         return round($gridSizeMultiplied);
     }
