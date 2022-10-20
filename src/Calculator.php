@@ -3,6 +3,7 @@
 namespace SierraKomodo\ArtilleryCalculator;
 
 
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -115,5 +116,31 @@ class Calculator
     public function setTarget(Coordinate $target): void
     {
         $this->target = $target;
+    }
+    
+    
+    // LOGIC
+    
+    /**
+     * Calculates and returns the range between origin and target.
+     *
+     * @return int Non-negative integer.
+     * @throws Exception if target is not defined.
+     *
+     * @todo Add support for elevation differences.
+     */
+    public function calculateRange(): int
+    {
+        if (empty($this->target)) {
+            throw new Exception("Attempted to calculate range without a target.");
+        }
+        // Determine the distance between origin and target using pythagorean's theorem, where `a` is the difference in
+        // X coordinates, and `b` is the difference in Y coordinates.
+        // Both differences are the absolute value as distance will always be a positive integer.
+        $differenceX        = $this->getOrigin()->getX() - $this->getTarget()->getX();
+        $differenceY        = $this->getOrigin()->getY() - $this->getTarget()->getY();
+        $hypotenuse         = sqrt($differenceX ** 2 + $differenceY ** 2);
+        $gridSizeMultiplied = $hypotenuse * $this->getGridSize(); // Multiply the result by the grid size to account for the distance between grid lines.
+        return round($gridSizeMultiplied);
     }
 }
